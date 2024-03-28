@@ -13,7 +13,8 @@ from torchvision import datasets as dset, transforms
 def get_train_validation_loader(data_dir, batch_size, num_train, augment, way, trials, shuffle, seed, num_workers,
                                 pin_memory):
     train_dir = os.path.join(data_dir, 'train')
-    val_dir = os.path.join(data_dir, 'val')
+    # val_dir = os.path.join(data_dir, 'val')
+    val_dir = os.path.join(data_dir, 'valid')
 
     train_dataset = dset.ImageFolder(train_dir)
     train_dataset = OmniglotTrain(train_dataset, num_train, augment)

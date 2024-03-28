@@ -38,18 +38,33 @@ def prepare_dirs(config):
         os.makedirs(os.path.join(path, 'models'))
 
 
+# def save_config(config):
+#     param_path = os.path.join(config.logs_dir, 'params.json')
+#
+#     if not os.path.isfile(param_path):
+#         print(f"Save params in {param_path}")
+#
+#         all_params = config.__dict__
+#         with open(param_path, 'w') as fp:
+#             json.dump(all_params, fp, indent=4, sort_keys=True)
+#     else:
+#         print(f"[!] Config file already exist.")
+#         raise ValueError
 def save_config(config):
     param_path = os.path.join(config.logs_dir, 'params.json')
 
     if not os.path.isfile(param_path):
         print(f"Save params in {param_path}")
-
-        all_params = config.__dict__
-        with open(param_path, 'w') as fp:
-            json.dump(all_params, fp, indent=4, sort_keys=True)
     else:
-        print(f"[!] Config file already exist.")
-        raise ValueError
+        user_input = input(f"[!] Config file already exists at {param_path}. Overwrite? (y/n): ")
+        if user_input.lower() != 'y':
+            print("Operation cancelled.")
+            return
+
+    all_params = config.__dict__
+    with open(param_path, 'w') as fp:
+        json.dump(all_params, fp, indent=4, sort_keys=True)
+    print(f"Configuration saved to {param_path}.")
 
 
 def load_config(config):

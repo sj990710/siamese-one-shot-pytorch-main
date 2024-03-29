@@ -23,9 +23,9 @@ data_arg.add_argument('--valid_trials', type=int, default=320,
                       help='# of validation 1-shot trials')
 data_arg.add_argument('--test_trials', type=int, default=400,
                       help='# of test 1-shot trials')
-data_arg.add_argument('--way', type=int, default=20,
+data_arg.add_argument('--way', type=int, default=4,
                       help='Ways in the 1-shot trials')
-data_arg.add_argument('--num_train', type=int, default=90000,
+data_arg.add_argument('--num_train', type=int, default=46156,
                       help='# of images in train dataset')
 data_arg.add_argument('--batch_size', type=int, default=128,
                       help='# of images in each batch of data')

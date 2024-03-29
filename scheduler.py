@@ -1,5 +1,6 @@
 from torch.optim import SGD, lr_scheduler
 import numpy as np
+import types
 
 
 # Implement from https://github.com/timesler/lr-momentum-scheduler

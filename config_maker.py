@@ -65,7 +65,7 @@ misc_arg.add_argument('--seed', type=int, default=1,
                       help='Seed to ensure reproducibility')
 # misc_arg.add_argument('--data_dir', type=str, default='./data/processed/',
 #                       help='Directory in which data is stored')
-misc_arg.add_argument('--data_dir', type=str, default='/home/server3/jhpark/split_data_density/',
+misc_arg.add_argument('--data_dir', type=str, default='/home/server3/jhpark/siamese-one-shot-pytorch-main/split_data_density/',
                       help='Directory in which data is stored')
 misc_arg.add_argument('--logs_dir', type=str, default='./result/',
                       help='Directory in which logs wil be stored')

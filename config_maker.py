@@ -27,11 +27,11 @@ data_arg.add_argument('--way', type=int, default=4,
                       help='Ways in the 1-shot trials')
 data_arg.add_argument('--num_train', type=int, default=46156,
                       help='# of images in train dataset')
-data_arg.add_argument('--batch_size', type=int, default=128,
+data_arg.add_argument('--batch_size', type=int, default=32,
                       help='# of images in each batch of data')
 data_arg.add_argument('--num_workers', type=int, default=4,
                       help='# of subprocesses to use for data loading')
-data_arg.add_argument('--pin_memory', type=str2bool, default=False,
+data_arg.add_argument('--pin_memory', type=str2bool, default=True,
                       help='Whether to save the pin memory')
 data_arg.add_argument('--shuffle', type=str2bool, default=True,
                       help='Whether to shuffle the dataset between epochs')
@@ -44,7 +44,7 @@ train_arg.add_argument('--epochs', type=int, default=200,
                        help='# of epochs to train for')
 train_arg.add_argument('--init_momentum', type=float, default=0.5,
                        help='Initial layer-wise momentum value')
-train_arg.add_argument('--lr', type=float, default=3e-4,
+train_arg.add_argument('--lr', type=float, default=10e-4,
                        help='learning rate')
 train_arg.add_argument('--train_patience', type=int, default=20,
                        help='Number of epochs to wait before stopping train')

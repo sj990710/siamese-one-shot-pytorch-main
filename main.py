@@ -37,7 +37,6 @@ def train(config=None, trainer=None):
     print_status("Train Start")
     trainer.train()
 
-
 # only test
 def test(config=None, trainer=None):
     if config is None or trainer is None:
@@ -47,6 +46,7 @@ def test(config=None, trainer=None):
     # test model
     print_status("Test Start")
     trainer.test()
+
 
 
 # running all process. download data, data set, data loader, train, validation, test

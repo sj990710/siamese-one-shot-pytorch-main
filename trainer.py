@@ -175,7 +175,7 @@ class Trainer(object):
         writer.close()
 
     # def test(self):
-    #
+    #     config = config_maker.get_config()
     #     # Load best model
     #     model = SiameseNet()
     #     _, _, _, model_state, _ = self.load_checkpoint(best=self.config.best)
@@ -197,15 +197,16 @@ class Trainer(object):
     #             if self.config.use_gpu:
     #                 x1, x2 = x1.to(self.device), x2.to(self.device)
     #
-    #             # compute log probabilities
+    #             # Compute log probabilities
     #             out = model(x1, x2)
     #
     #             y_pred = torch.sigmoid(out)
-    #             y_pred = torch.argmax(y_pred)
+    #             y_pred = torch.argmax(y_pred).item()
     #             if y_pred == 0:
     #                 correct_sum += 1
     #
-    #             visual.visualize_prediction(x1[0], x2[0], y_pred)
+    #             # Call visualize_prediction with the current index i
+    #             visual.visualize_prediction(x1[0], x2[0], y_pred, i, config.logs_dir)
     #
     #             pbar.set_postfix_str(f"accuracy: {correct_sum / num_test}")
     #
@@ -230,7 +231,7 @@ class Trainer(object):
 
         pbar = tqdm(enumerate(test_loader), total=num_test, desc="Test")
         with torch.no_grad():
-            for i, (x1, x2, _) in pbar:
+            for i, (x1, x2, similarity_labels, anchor_labels) in pbar:
 
                 if self.config.use_gpu:
                     x1, x2 = x1.to(self.device), x2.to(self.device)
@@ -243,8 +244,12 @@ class Trainer(object):
                 if y_pred == 0:
                     correct_sum += 1
 
-                # Call visualize_prediction with the current index i
-                visual.visualize_prediction(x1[0], x2[0], y_pred, i, config.logs_dir)
+                # 이미 .item()을 사용하여 float으로 변환된 값을 받았으므로, 추가적인 .item() 호출은 필요 없음
+                similarity_label = similarity_labels[0].item()  # 첫 번째 요소의 레이블만 사용
+                anchor_label = anchor_labels[0].item()  # 첫 번째 요소의 레이블만 사용
+
+                # Call visualize_prediction with the current index i and anchor_label
+                visual.visualize_prediction(x1[0], x2[0], y_pred, anchor_label, i, config.logs_dir)
 
                 pbar.set_postfix_str(f"accuracy: {correct_sum / num_test}")
 

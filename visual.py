@@ -5,6 +5,7 @@ import os
 def visualize_prediction(x1, x2, y_pred, index, save_dir):
     """
     Visualizes the prediction for a pair of images and saves it in the specified directory.
+    Depending on the prediction result, images are saved in 'same' or 'different' folders.
     """
     fig, ax = plt.subplots(1, 2, figsize=(10, 5))
     ax[0].imshow(np.transpose(x1.cpu().numpy(), (1, 2, 0)))
@@ -17,9 +18,11 @@ def visualize_prediction(x1, x2, y_pred, index, save_dir):
     ax[1].set_title(image_title)
     ax[1].axis('off')
 
+    # 'same' 또는 'different' 폴더 경로 설정
+    result_folder = 'same' if y_pred == 0 else 'different'
+    save_path = os.path.join(save_dir, 'prediction', result_folder)
     # 디렉토리 생성 (이미 있으면 무시)
-    save_path = os.path.join(save_dir, 'prediction')  # 디렉토리 경로 구성
-    os.makedirs(save_path, exist_ok=True)  # 디렉토리 생성
+    os.makedirs(save_path, exist_ok=True)
 
     plt.suptitle(f'Prediction: {"Same" if y_pred == 0 else "Different"}')
 

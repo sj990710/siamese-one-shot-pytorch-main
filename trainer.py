@@ -244,7 +244,7 @@ class Trainer(object):
                     correct_sum += 1
 
                 # Call visualize_prediction with the current index i
-                # visual.visualize_prediction(x1[0], x2[0], y_pred, i, config.logs_dir)
+                visual.visualize_prediction(x1[0], x2[0], y_pred, i, config.logs_dir)
 
                 pbar.set_postfix_str(f"accuracy: {correct_sum / num_test}")
 

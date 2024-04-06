@@ -73,7 +73,7 @@ class Trainer(object):
 
         # create tensorboard summary and add model structure.
         writer = SummaryWriter(os.path.join(self.config.logs_dir, 'logs'), filename_suffix=self.config.num_model)
-        im1, im2, _ = next(iter(valid_loader))
+        im1, im2, label, _, _ = next(iter(valid_loader))
         writer.add_graph(model, [im1.to(self.device), im2.to(self.device)])
 
         counter = 0
@@ -117,14 +117,16 @@ class Trainer(object):
             correct_sum = 0
             valid_pbar = tqdm(enumerate(valid_loader), total=num_valid, desc="Valid", position=1, leave=False)
             with torch.no_grad():
-                for i, (x1, x2, y) in valid_pbar:
+                for i, (x1, x2, label, _, _) in valid_pbar:  # 언패킹 방식이 수정됨
 
                     if self.config.use_gpu:
-                        x1, x2, y = x1.to(self.device), x2.to(self.device), y.to(self.device)
+                        x1, x2, label = x1.to(self.device), x2.to(self.device), label.to(self.device)  # label도 GPU로 이동
 
-                    # compute log probabilities
+                    # 모델을 통해 logit을 계산
                     out = model(x1, x2)
-                    loss = criterion(out, y.unsqueeze(1))
+
+                    # 손실 계산
+                    loss = criterion(out, label.unsqueeze(1))  # y 대신 label 사용
 
                     y_pred = torch.sigmoid(out)
                     y_pred = torch.argmax(y_pred)

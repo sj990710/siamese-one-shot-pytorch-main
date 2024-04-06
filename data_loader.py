@@ -136,16 +136,16 @@ class OmniglotTrain(Dataset):
 #
 #         return image1, image2, torch.tensor(label, dtype=torch.float32)
 
-class OmniglotTest(Dataset):
-    def __init__(self, dataset, trials, way, seed=0):
-        self.dataset = dataset
-        self.trials = trials
-        self.way = way
-        self.seed = seed
-        self.image1 = None
-
-    def __len__(self):
-        return self.trials * self.way
+# class OmniglotTest(Dataset):
+#     def __init__(self, dataset, trials, way, seed=0):
+#         self.dataset = dataset
+#         self.trials = trials
+#         self.way = way
+#         self.seed = seed
+#         self.image1 = None
+#
+#     def __len__(self):
+#         return self.trials * self.way
 
     # def __getitem__(self, index):
     #     rand = Random(self.seed + index)
@@ -177,6 +177,17 @@ class OmniglotTest(Dataset):
     #     anchor_label = self.image1[1]  # anchor 이미지의 클래스 인덱스
     #
     #     return image1, image2, torch.tensor(label, dtype=torch.float32), torch.tensor(anchor_label, dtype=torch.int64)
+
+class OmniglotTest(Dataset):
+    def __init__(self, dataset, trials, way, seed=0):
+        self.dataset = dataset
+        self.trials = trials
+        self.way = way
+        self.seed = seed
+        self.image1 = None
+
+    def __len__(self):
+        return self.trials * self.way
 
     def __getitem__(self, index):
         rand = Random(self.seed + index)
@@ -212,3 +223,4 @@ class OmniglotTest(Dataset):
         anchor_label = self.image1[1]  # anchor 이미지의 클래스 인덱스
 
         return image1, image2, torch.tensor(label, dtype=torch.float32), torch.tensor(anchor_label,dtype=torch.int64), torch.tensor(image2_label, dtype=torch.int64)
+

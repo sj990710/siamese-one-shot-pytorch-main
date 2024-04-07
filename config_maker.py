@@ -19,13 +19,13 @@ parser = argparse.ArgumentParser(description='Siamese Network')
 
 # data params
 data_arg = parser.add_argument_group('Data Params')
-data_arg.add_argument('--valid_trials', type=int, default=320,
-                      help='# of validation 1-shot trials')
-data_arg.add_argument('--test_trials', type=int, default=400,
-                      help='# of test 1-shot trials')
+data_arg.add_argument('--valid_trials', type=int, default=5000,
+                      help='# of validation 1-shot trials') #320
+data_arg.add_argument('--test_trials', type=int, default=5800,
+                      help='# of test 1-shot trials') #400
 data_arg.add_argument('--way', type=int, default=4,
                       help='Ways in the 1-shot trials')
-data_arg.add_argument('--num_train', type=int, default=46156,
+data_arg.add_argument('--num_train', type=int, default=45000,
                       help='# of images in train dataset')
 data_arg.add_argument('--batch_size', type=int, default=32,
                       help='# of images in each batch of data')
@@ -40,16 +40,16 @@ data_arg.add_argument('--augment', type=str2bool, default=True,
 
 # training params
 train_arg = parser.add_argument_group('Training Params')
-train_arg.add_argument('--epochs', type=int, default=200,
+train_arg.add_argument('--epochs', type=int, default=400,
                        help='# of epochs to train for')
 train_arg.add_argument('--init_momentum', type=float, default=0.5,
                        help='Initial layer-wise momentum value')
 train_arg.add_argument('--lr', type=float, default=10e-4,
                        help='learning rate')
-train_arg.add_argument('--train_patience', type=int, default=20,
+train_arg.add_argument('--train_patience', type=int, default=40,
                        help='Number of epochs to wait before stopping train')
-train_arg.add_argument('--optimizer', type=str, default="Adam",
-                       help='Select optimizer "Adam" or "SGD"')
+train_arg.add_argument('--optimizer', type=str, default="SGD",
+                       help='Select optimizer "Adam" or "Adam"')
 
 # other params
 misc_arg = parser.add_argument_group('Misc.')

@@ -40,13 +40,13 @@ data_arg.add_argument('--augment', type=str2bool, default=True,
 
 # training params
 train_arg = parser.add_argument_group('Training Params')
-train_arg.add_argument('--epochs', type=int, default=400,
+train_arg.add_argument('--epochs', type=int, default=200,
                        help='# of epochs to train for')
 train_arg.add_argument('--init_momentum', type=float, default=0.5,
                        help='Initial layer-wise momentum value')
 train_arg.add_argument('--lr', type=float, default=10e-4,
                        help='learning rate')
-train_arg.add_argument('--train_patience', type=int, default=40,
+train_arg.add_argument('--train_patience', type=int, default=20,
                        help='Number of epochs to wait before stopping train')
 train_arg.add_argument('--optimizer', type=str, default="SGD",
                        help='Select optimizer "Adam" or "Adam"')

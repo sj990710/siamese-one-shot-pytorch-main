@@ -284,16 +284,104 @@
 #     print(net)
 
 #ResNet34
+# import torch
+# import torch.nn as nn
+# import torchvision.models as models
+#
+# class SiameseNet(nn.Module):
+#     """
+#     A Convolutional Siamese Network for One-Shot Learning using ResNet34 as the backbone.
+#
+#     This network is adapted to accept grayscale (1-channel) images by modifying
+#     the first convolutional layer of the ResNet34 backbone to have 1 input channel.
+#
+#     References
+#     ----------
+#     - Koch et al., https://www.cs.cmu.edu/~rsalakhu/papers/oneshot1.pdf
+#     """
+#
+#     def __init__(self):
+#         super(SiameseNet, self).__init__()
+#
+#         # Load the pre-trained ResNet34 model as the backbone for the Siamese Network
+#         backbone = models.resnet34(pretrained=True)
+#         # Modify the first convolutional layer to accept 1-channel (grayscale) images
+#         backbone.conv1 = nn.Conv2d(1, 64, kernel_size=7, stride=2, padding=3, bias=False)
+#
+#         self.features = nn.Sequential(*list(backbone.children())[:-2])  # Remove the last fully connected layer and global average pooling
+#
+#         # Add an adaptive average pooling to handle different input sizes
+#         self.adaptive_pool = nn.AdaptiveAvgPool2d((1, 1))
+#
+#         # Define the linear layer
+#         # Adjust the input size of the linear layer according to the output size of the adaptive pooling layer for ResNet34
+#         self.liner = nn.Sequential(
+#             nn.Dropout(0.2),
+#             nn.Linear(512, 4096),  # ResNet34 features size is 512
+#             nn.Sigmoid()
+#         )
+#
+#         self.out = nn.Linear(4096, 1)
+#
+#     def sub_forward(self, x):
+#         """
+#         Forward pass the input image through 1 subnetwork, using the modified ResNet34 backbone.
+#
+#         Args
+#         - x: a Variable of size (B, C, H, W). Contains either the first or
+#           second image pair across the input batch.
+#
+#         Returns
+#         - out: a Variable of size (B, 4096). The hidden vector representation
+#           of the input vector x.
+#         """
+#         x = self.features(x)
+#         x = self.adaptive_pool(x)
+#         x = torch.flatten(x, 1)
+#         x = self.liner(x)
+#         return x
+#
+#     def forward(self, x1, x2):
+#         """
+#         Forward pass the input image pairs through both subtwins using the modified ResNet34 backbone.
+#
+#         Args
+#         - x1: a Variable of size (B, C, H, W). The left image pairs along the
+#           batch dimension.
+#         - x2: a Variable of size (B, C, H, W). The right image pairs along the
+#           batch dimension.
+#
+#         Returns
+#         - scores: a Variable of size (B, 1). A score indicating the similarity
+#           of the input pairs.
+#         """
+#         h1 = self.sub_forward(x1)
+#         h2 = self.sub_forward(x2)
+#
+#         # Compute L1 distance
+#         diff = torch.abs(h1 - h2)
+#
+#         # Score the similarity between the 2 encodings
+#         scores = self.out(diff)
+#
+#         return scores
+#
+#
+# if __name__ == '__main__':
+#     net = SiameseNet()
+#     print(net)
+
+#Resnet101
 import torch
 import torch.nn as nn
 import torchvision.models as models
 
 class SiameseNet(nn.Module):
     """
-    A Convolutional Siamese Network for One-Shot Learning using ResNet34 as the backbone.
+    A Convolutional Siamese Network for One-Shot Learning using ResNet101 as the backbone.
 
     This network is adapted to accept grayscale (1-channel) images by modifying
-    the first convolutional layer of the ResNet34 backbone to have 1 input channel.
+    the first convolutional layer of the ResNet101 backbone to have 1 input channel.
 
     References
     ----------
@@ -303,8 +391,8 @@ class SiameseNet(nn.Module):
     def __init__(self):
         super(SiameseNet, self).__init__()
 
-        # Load the pre-trained ResNet34 model as the backbone for the Siamese Network
-        backbone = models.resnet34(pretrained=True)
+        # Load the pre-trained ResNet101 model as the backbone for the Siamese Network
+        backbone = models.resnet101(pretrained=True)
         # Modify the first convolutional layer to accept 1-channel (grayscale) images
         backbone.conv1 = nn.Conv2d(1, 64, kernel_size=7, stride=2, padding=3, bias=False)
 
@@ -314,10 +402,10 @@ class SiameseNet(nn.Module):
         self.adaptive_pool = nn.AdaptiveAvgPool2d((1, 1))
 
         # Define the linear layer
-        # Adjust the input size of the linear layer according to the output size of the adaptive pooling layer for ResNet34
+        # Adjust the input size of the linear layer according to the output size of the adaptive pooling layer for ResNet101
         self.liner = nn.Sequential(
             nn.Dropout(0.2),
-            nn.Linear(512, 4096),  # ResNet34 features size is 512
+            nn.Linear(2048, 4096),  # ResNet101 features size is 2048
             nn.Sigmoid()
         )
 
@@ -325,7 +413,7 @@ class SiameseNet(nn.Module):
 
     def sub_forward(self, x):
         """
-        Forward pass the input image through 1 subnetwork, using the modified ResNet34 backbone.
+        Forward pass the input image through 1 subnetwork, using the modified ResNet101 backbone.
 
         Args
         - x: a Variable of size (B, C, H, W). Contains either the first or
@@ -343,7 +431,7 @@ class SiameseNet(nn.Module):
 
     def forward(self, x1, x2):
         """
-        Forward pass the input image pairs through both subtwins using the modified ResNet34 backbone.
+        Forward pass the input image pairs through both subtwins using the modified ResNet101 backbone.
 
         Args
         - x1: a Variable of size (B, C, H, W). The left image pairs along the

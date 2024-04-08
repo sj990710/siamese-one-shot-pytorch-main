@@ -213,7 +213,7 @@ class Trainer(object):
                 x2_label = x2_labels[0].item()
 
                 # Call visualize_prediction with the current index i and anchor_label
-                visual.visualize_prediction(x1[0], x2[0], y_pred, anchor_label, x2_label, i, config.logs_dir)
+                visual.visualize_prediction(x1[0], x2[0], y_pred, similarity_label, x2_label, i, config.logs_dir)
 
                 pbar.set_postfix_str(f"accuracy: {correct_sum / num_test}")
 

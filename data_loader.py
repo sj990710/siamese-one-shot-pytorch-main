@@ -32,7 +32,7 @@ def get_train_validation_loader(data_dir, batch_size, num_train, augment, way, t
                               pin_memory=pin_memory)
 
     val_dataset = dset.ImageFolder(val_dir, transform=val_transform)
-    val_dataset = OmniglotTest(val_dataset, trials, way, seed)
+    val_dataset = Omniglotvalid(val_dataset, trials, way, seed)
     val_loader = DataLoader(val_dataset, batch_size=way, shuffle=False, num_workers=num_workers,
                             pin_memory=pin_memory)
 
@@ -96,87 +96,51 @@ class OmniglotTrain(Dataset):
 
         return image1, image2, label
 
-# class OmniglotTest(Dataset):
-#     def __init__(self, dataset, trials, way, seed=0):
-#         self.dataset = dataset
-#         self.trials = trials
-#         self.way = way
-#         self.seed = seed
-#         self.image1 = None
-#
-#     def __len__(self):
-#         return self.trials * self.way
-#
-#     def __getitem__(self, index):
-#         rand = Random(self.seed + index)
-#         if index % self.way == 0:
-#             label = 1.0
-#             idx = rand.randint(0, len(self.dataset.classes) - 1)
-#             image_list = [x for x in self.dataset.imgs if x[1] == idx]
-#             self.image1 = rand.choice(image_list)
-#             image2 = rand.choice(image_list)
-#             while self.image1[0] == image2[0]:
-#                 image2 = rand.choice(image_list)
-#         else:
-#             label = 0.0
-#             image2 = random.choice(self.dataset.imgs)
-#             while self.image1[1] == image2[1]:
-#                 image2 = random.choice(self.dataset.imgs)
-#
-#         trans = transforms.Compose([
-#             transforms.Resize((105, 105)),
-#             transforms.ToTensor(),
-#             transforms.Normalize(mean=[0.8444], std=[0.5329])
-#         ])
-#
-#         image1 = Image.open(self.image1[0]).convert('L')
-#         image2 = Image.open(image2[0]).convert('L')
-#         image1 = trans(image1)
-#         image2 = trans(image2)
-#
-#         return image1, image2, torch.tensor(label, dtype=torch.float32)
+class Omniglotvalid(Dataset):
+    def __init__(self, dataset, trials, way, seed=0):
+        self.dataset = dataset
+        self.trials = trials
+        self.way = way
+        self.seed = seed
+        self.image1 = None
 
-# class OmniglotTest(Dataset):
-#     def __init__(self, dataset, trials, way, seed=0):
-#         self.dataset = dataset
-#         self.trials = trials
-#         self.way = way
-#         self.seed = seed
-#         self.image1 = None
-#
-#     def __len__(self):
-#         return self.trials * self.way
+    def __len__(self):
+        return self.trials * self.way
 
-    # def __getitem__(self, index):
-    #     rand = Random(self.seed + index)
-    #     if index % self.way == 0:  # 새로운 'way'마다 anchor 이미지를 선택
-    #         idx = rand.randint(0, len(self.dataset.classes) - 1)
-    #         image_list = [x for x in self.dataset.imgs if x[1] == idx]
-    #         self.image1 = rand.choice(image_list)  # anchor 이미지 선택
-    #         image2 = rand.choice(image_list)
-    #         while self.image1[0] == image2[0]:  # 다른 이미지 선택
-    #             image2 = rand.choice(image_list)
-    #         label = 1.0  # 같은 클래스
-    #     else:
-    #         image2 = random.choice(self.dataset.imgs)
-    #         while self.image1[1] == image2[1]:  # 다른 클래스 이미지 선택
-    #             image2 = random.choice(self.dataset.imgs)
-    #         label = 0.0  # 다른 클래스
-    #
-    #     trans = transforms.Compose([
-    #         transforms.Resize((105, 105)),
-    #         transforms.ToTensor(),
-    #         transforms.Normalize(mean=[0.8444], std=[0.5329])
-    #     ])
-    #
-    #     image1 = Image.open(self.image1[0]).convert('L')
-    #     image2 = Image.open(image2[0]).convert('L')
-    #     image1 = trans(image1)
-    #     image2 = trans(image2)
-    #
-    #     anchor_label = self.image1[1]  # anchor 이미지의 클래스 인덱스
-    #
-    #     return image1, image2, torch.tensor(label, dtype=torch.float32), torch.tensor(anchor_label, dtype=torch.int64)
+    def __getitem__(self, index):
+        rand = Random(self.seed + index)
+        if index % self.way == 0:  # 새로운 'way'마다 anchor 이미지를 선택
+            idx = rand.randint(0, len(self.dataset.classes) - 1)
+            image_list = [x for x in self.dataset.imgs if x[1] == idx]
+            self.image1 = rand.choice(image_list)  # anchor 이미지 선택
+            image2 = rand.choice(image_list)
+            while self.image1[0] == image2[0]:  # 다른 이미지 선택
+                image2 = rand.choice(image_list)
+            label = 1.0  # 같은 클래스
+        else:
+            image2 = random.choice(self.dataset.imgs)
+            while self.image1[1] == image2[1]:  # 다른 클래스 이미지 선택
+                image2 = random.choice(self.dataset.imgs)
+            label = 0.0  # 다른 클래스
+
+        # 이미지 변환을 적용하기 전에 레이블 정보를 추출
+        image2_label = image2[1]  # 이미지 변환 전에 image2의 레이블을 추출
+
+        # 이미지 변환 적용
+        trans = transforms.Compose([
+            transforms.Resize((105, 105)),
+            transforms.ToTensor(),
+            transforms.Normalize(mean=[0.8444], std=[0.5329])
+        ])
+
+        image1 = Image.open(self.image1[0]).convert('L')
+        image2 = Image.open(image2[0]).convert('L')
+        image1 = trans(image1)
+        image2 = trans(image2)
+
+        anchor_label = self.image1[1]  # anchor 이미지의 클래스 인덱스
+
+        return image1, image2, torch.tensor(label, dtype=torch.float32), torch.tensor(anchor_label,dtype=torch.int64), torch.tensor(image2_label, dtype=torch.int64)
 
 class OmniglotTest(Dataset):
     def __init__(self, dataset, trials, way, seed=0):
@@ -223,4 +187,3 @@ class OmniglotTest(Dataset):
         anchor_label = self.image1[1]  # anchor 이미지의 클래스 인덱스
 
         return image1, image2, torch.tensor(label, dtype=torch.float32), torch.tensor(anchor_label,dtype=torch.int64), torch.tensor(image2_label, dtype=torch.int64)
-

@@ -202,6 +202,7 @@ class OmniglotTest_sample(Dataset):
 
         return torch.stack(images), torch.tensor(labels, dtype=torch.int64)
 
+
 class OmniglotTest_query(Dataset):
     def __init__(self, dataset, trials, way, seed=0):
         self.dataset = dataset

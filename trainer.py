@@ -290,6 +290,43 @@ class Trainer(object):
     #             # 현재 쿼리 이미지의 라벨과 유사도 점수 출력
     #             print(f"Query image {batch_index + 1}, Label: {query_label.item()}: y_preds = {y_preds}")
 
+    # # sample image 16, query image floating
+    # def test(self):
+    #     config = config_maker.get_config()
+    #     model = SiameseNet()
+    #     _, _, _, model_state, _ = self.load_checkpoint(best=self.config.best)
+    #     model.load_state_dict(model_state)
+    #     if self.config.use_gpu:
+    #         model.cuda()
+    #
+    #     test_loader_1, test_loader_2 = get_test_loader(self.config.data_dir, self.config.way,
+    #                                                    self.config.test_trials,
+    #                                                    self.config.seed, self.config.num_workers,
+    #                                                    self.config.pin_memory)
+    #
+    #     with torch.no_grad():
+    #         for batch_index, (sample_images, sample_labels) in enumerate(test_loader_1):
+    #             query_image, query_label = next(iter(test_loader_2))
+    #
+    #             if self.config.use_gpu:
+    #                 sample_images = sample_images.cuda()
+    #                 query_image = query_image.cuda()
+    #
+    #             y_preds = []
+    #             for sample_image in sample_images:
+    #                 if sample_image.dim() == 3:
+    #                     sample_image = sample_image.unsqueeze(0)
+    #
+    #                 out = model(sample_image, query_image)
+    #                 y_pred = torch.sigmoid(out)
+    #
+    #                 y_pred_mean = y_pred.mean().item()  # 평균 점수 사용
+    #                 y_preds.append(y_pred_mean)
+    #
+    #             print(f"Query image {batch_index + 1}, Label: {query_label.item()}: y_preds = {y_preds}")
+    #             visual.visualize_predictions(sample_images, sample_labels, query_image, query_label, y_preds,
+    #                                          batch_index, config.logs_dir)
+
     def test(self):
         config = config_maker.get_config()
         model = SiameseNet()
@@ -317,11 +354,9 @@ class Trainer(object):
                         sample_image = sample_image.unsqueeze(0)
 
                     out = model(sample_image, query_image)
-                    y_pred = torch.sigmoid(out)
-
-                    y_pred_mean = y_pred.mean().item()  # 평균 점수 사용
-                    y_preds.append(y_pred_mean)
+                    y_pred = torch.sigmoid(out).squeeze()  # 각 샘플에 대한 유사도 계산
+                    y_preds.extend(y_pred.tolist())  # 유사도 점수를 리스트로 저장
 
                 print(f"Query image {batch_index + 1}, Label: {query_label.item()}: y_preds = {y_preds}")
                 visual.visualize_predictions(sample_images, sample_labels, query_image, query_label, y_preds,
-                                             batch_index, config.logs_dir)
+                                      batch_index, config.logs_dir)

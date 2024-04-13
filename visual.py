@@ -63,7 +63,55 @@ import os
 #     plt.savefig(file_path)  # 지정된 경로에 이미지 저장
 #     plt.close(fig)  # 리소스 해제
 
-# sample image 16, query image floating
+# # sample image 16, query image floating
+# def adjust_image(image):
+#     # 이미지 차원을 확인하고 적절히 조정
+#     if image.dim() == 3:
+#         return image.cpu().numpy()  # 이미지가 이미 적절한 차원이면 변환만 수행
+#     elif image.dim() == 4:
+#         # 이미지 배치인 경우 첫 번째 이미지만 사용
+#         return image[0].cpu().numpy()
+#     else:
+#         raise ValueError(f"Unsupported image dimensions: {image.shape}")
+#
+# def visualize_predictions(sample_images, sample_labels, query_image, query_label, y_preds, batch_index, save_dir):
+#     fig, axs = plt.subplots(4, 5, figsize=(25, 20))  # 4x5 그리드로 변경, 충분한 크기 확보
+#
+#     # 쿼리 이미지 처리 및 왼쪽 상단에 표시
+#     query_image_np = adjust_image(query_image)
+#     axs[0, 0].imshow(query_image_np.transpose(1, 2, 0))  # 왼쪽 상단에 쿼리 이미지 배치
+#     axs[0, 0].set_title(f'Query Image - Label: {query_label}', fontsize=10)
+#     axs[0, 0].axis('off')
+#
+#     # 나머지 첫 행의 첫 열을 비움
+#     for i in range(1, 4):
+#         axs[i, 0].axis('off')
+#
+#     # 샘플 이미지들을 4x4 그리드에 표시
+#     image_index = 0
+#     for i in range(4):
+#         for j in range(1, 5):
+#             if image_index < len(sample_images):
+#                 sample_image_batch = sample_images[image_index]
+#                 label = sample_labels[image_index]
+#                 y_pred = y_preds[image_index]
+#                 sample_image_np = adjust_image(sample_image_batch)
+#                 axs[i, j].imshow(sample_image_np.transpose(1, 2, 0))
+#                 result = 'Match' if y_pred > 0.5 else 'Mismatch'
+#                 axs[i, j].set_title(f'Label: {label}\n{result} (Score: {y_pred:.2f})', fontsize=10)
+#                 axs[i, j].axis('off')
+#                 image_index += 1
+#
+#     # 결과 저장
+#     save_path = os.path.join(save_dir, 'predictions')
+#     os.makedirs(save_path, exist_ok=True)
+#     file_path = os.path.join(save_path, f'batch_{batch_index}_comparison.jpg')
+#     plt.savefig(file_path)
+#     plt.close(fig)
+#
+#     print(f"Saved prediction comparison for batch {batch_index} at {file_path}")
+
+
 def adjust_image(image):
     # 이미지 차원을 확인하고 적절히 조정
     if image.dim() == 3:
@@ -75,12 +123,12 @@ def adjust_image(image):
         raise ValueError(f"Unsupported image dimensions: {image.shape}")
 
 def visualize_predictions(sample_images, sample_labels, query_image, query_label, y_preds, batch_index, save_dir):
-    fig, axs = plt.subplots(4, 5, figsize=(25, 20))  # 4x5 그리드로 변경, 충분한 크기 확보
+    fig, axs = plt.subplots(4, 5, figsize=(25, 20))  # 크기 조정
 
-    # 쿼리 이미지 처리 및 왼쪽 상단에 표시
+    # 쿼리 이미지 처리 및 왼쪽 상단에 크게 표시
     query_image_np = adjust_image(query_image)
     axs[0, 0].imshow(query_image_np.transpose(1, 2, 0))  # 왼쪽 상단에 쿼리 이미지 배치
-    axs[0, 0].set_title(f'Query Image - Label: {query_label}', fontsize=10)
+    axs[0, 0].set_title(f'Query Image - Label: {query_label}', fontsize=12)  # 폰트 크기 조정
     axs[0, 0].axis('off')
 
     # 나머지 첫 행의 첫 열을 비움
@@ -92,17 +140,17 @@ def visualize_predictions(sample_images, sample_labels, query_image, query_label
     for i in range(4):
         for j in range(1, 5):
             if image_index < len(sample_images):
-                sample_image_batch = sample_images[image_index]
+                sample_image_np = adjust_image(sample_images[image_index])
                 label = sample_labels[image_index]
                 y_pred = y_preds[image_index]
-                sample_image_np = adjust_image(sample_image_batch)
                 axs[i, j].imshow(sample_image_np.transpose(1, 2, 0))
                 result = 'Match' if y_pred > 0.5 else 'Mismatch'
-                axs[i, j].set_title(f'Label: {label}\n{result} (Score: {y_pred:.2f})', fontsize=10)
+                score_percent = y_pred * 100  # 점수를 백분율로 변환
+                axs[i, j].set_title(f'Label: {label}\n{result} (Score: {score_percent:.2f}%)', fontsize=10)
                 axs[i, j].axis('off')
                 image_index += 1
 
-    # 결과 저장
+    # 결과 저장 및 출력
     save_path = os.path.join(save_dir, 'predictions')
     os.makedirs(save_path, exist_ok=True)
     file_path = os.path.join(save_path, f'batch_{batch_index}_comparison.jpg')

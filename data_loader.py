@@ -38,21 +38,34 @@ def get_train_validation_loader(data_dir, batch_size, num_train, augment, way, t
 
     return train_loader, val_loader
 
+# def get_test_loader(data_dir_1, data_dir_2, way, trials, seed, num_workers, pin_memory):
+#     test_dir_1 = os.path.join(data_dir_1, 'test')
+#     test_dir_2 = os.path.join(data_dir_2, 'test_query')
+#
+#     test_transform = transforms.Compose([
+#         transforms.Resize((105, 105)),
+#         transforms.ToTensor(),
+#         transforms.Normalize(mean=[0.8444], std=[0.5329])
+#     ])
+#
+#     test_dataset_1 = dset.ImageFolder(test_dir_1, transform=test_transform)
+#     test_dataset_1 = OmniglotTest(test_dataset_1, trials=trials, way=way, seed=seed)
+#     test_loader_1 = DataLoader(test_dataset_1, batch_size=way, shuffle=False, num_workers=num_workers,
+#                              pin_memory=pin_memory)
+#
+#     return test_loader_1
 def get_test_loader(data_dir, way, trials, seed, num_workers, pin_memory):
-    test_dir = os.path.join(data_dir, 'test')
+    test_dir_1 = os.path.join(data_dir, 'test')
+    test_dir_2 = os.path.join(data_dir, 'test_query')
 
-    test_transform = transforms.Compose([
-        transforms.Resize((105, 105)),
-        transforms.ToTensor(),
-        transforms.Normalize(mean=[0.8444], std=[0.5329])
-    ])
+    test_dataset_1 = OmniglotTest_sample(test_dir_1, trials=500, way=16, seed=seed)
+    test_loader_1 = DataLoader(test_dataset_1, batch_size=16, shuffle=False, num_workers=0, pin_memory=pin_memory)
 
-    test_dataset = dset.ImageFolder(test_dir, transform=test_transform)
-    test_dataset = OmniglotTest(test_dataset, trials=trials, way=way, seed=seed)
-    test_loader = DataLoader(test_dataset, batch_size=way, shuffle=False, num_workers=num_workers,
-                             pin_memory=pin_memory)
+    test_dataset_2 = OmniglotTest_query(test_dir_2, trials=1, way=1, seed=seed)  # trials와 way를 1로 설정하여 단일 이미지 로드
+    test_loader_2 = DataLoader(test_dataset_2, batch_size=1, shuffle=False, num_workers=num_workers,
+                               pin_memory=pin_memory)
 
-    return test_loader
+    return test_loader_1, test_loader_2
 
 
 # adapted from https://github.com/fangpin/siamese-network
@@ -142,35 +155,36 @@ class Omniglotvalid(Dataset):
 
         return image1, image2, torch.tensor(label, dtype=torch.float32), torch.tensor(anchor_label,dtype=torch.int64), torch.tensor(image2_label, dtype=torch.int64)
 
-class OmniglotTest(Dataset):
+
+class OmniglotTest_sample(Dataset):
     def __init__(self, dataset, trials, way, seed=0):
+        assert way == 16, "way must be 16 to fetch 16 images at once"
         self.dataset = dataset
         self.trials = trials
         self.way = way
         self.seed = seed
-        self.image1 = None
+        self.classes = [d for d in os.listdir(dataset) if os.path.isdir(os.path.join(dataset, d))]
+        self.selected_images = self.select_images()
+
+    def select_images(self):
+        random.seed(self.seed)
+        selected_images = []
+        for _ in range(self.trials):
+            way_images = []
+            for _ in range(self.way):
+                cls = random.choice(self.classes)
+                class_dir = os.path.join(self.dataset, cls)
+                images = os.listdir(class_dir)
+                selected_image = random.choice(images)
+                way_images.append((os.path.join(class_dir, selected_image), cls))
+            selected_images.append(way_images)
+        return selected_images
 
     def __len__(self):
-        return self.trials * self.way
+        return self.trials
 
     def __getitem__(self, index):
-        rand = Random(self.seed + index)
-        if index % self.way == 0:  # 새로운 'way'마다 anchor 이미지를 선택
-            idx = rand.randint(0, len(self.dataset.classes) - 1)
-            image_list = [x for x in self.dataset.imgs if x[1] == idx]
-            self.image1 = rand.choice(image_list)  # anchor 이미지 선택
-            image2 = rand.choice(image_list)
-            while self.image1[0] == image2[0]:  # 다른 이미지 선택
-                image2 = rand.choice(image_list)
-            label = 1.0  # 같은 클래스
-        else:
-            image2 = random.choice(self.dataset.imgs)
-            while self.image1[1] == image2[1]:  # 다른 클래스 이미지 선택
-                image2 = random.choice(self.dataset.imgs)
-            label = 0.0  # 다른 클래스
-
-        # 이미지 변환을 적용하기 전에 레이블 정보를 추출
-        image2_label = image2[1]  # 이미지 변환 전에 image2의 레이블을 추출
+        way_images = self.selected_images[index]
 
         # 이미지 변환 적용
         trans = transforms.Compose([
@@ -179,11 +193,63 @@ class OmniglotTest(Dataset):
             transforms.Normalize(mean=[0.8444], std=[0.5329])
         ])
 
-        image1 = Image.open(self.image1[0]).convert('L')
-        image2 = Image.open(image2[0]).convert('L')
-        image1 = trans(image1)
-        image2 = trans(image2)
+        images, labels = [], []
+        for img_path, cls in way_images:
+            image = Image.open(img_path).convert('L')
+            image = trans(image)
+            images.append(image)
+            labels.append(self.classes.index(cls))
 
-        anchor_label = self.image1[1]  # anchor 이미지의 클래스 인덱스
+        return torch.stack(images), torch.tensor(labels, dtype=torch.int64)
 
-        return image1, image2, torch.tensor(label, dtype=torch.float32), torch.tensor(anchor_label,dtype=torch.int64), torch.tensor(image2_label, dtype=torch.int64)
+class OmniglotTest_query(Dataset):
+    def __init__(self, dataset, trials, way, seed=0):
+        self.dataset = dataset
+        self.trials = trials
+        self.way = way
+        self.seed = seed
+        self.classes = [d for d in os.listdir(dataset) if os.path.isdir(os.path.join(dataset, d))]
+        self.selected_images = self.select_images()
+
+    def select_images(self):
+        random.seed(self.seed)
+        selected_class = random.choice(self.classes)
+        selected_class_dir = os.path.join(self.dataset, selected_class)
+        all_items = os.listdir(selected_class_dir)
+        images = [item for item in all_items if os.path.isfile(os.path.join(selected_class_dir, item))]
+
+        if images:
+            selected_image = random.choice(images)
+            image_path = os.path.join(selected_class_dir, selected_image)
+            return [(image_path, self.classes.index(selected_class))]
+        else:
+            raise Exception(f"No images found in directory {selected_class_dir}")
+
+    def __len__(self):
+        return self.trials * self.way
+
+    def __getitem__(self, index):
+        # 매번 호출 시 무작위 클래스 선택
+        selected_class = random.choice(self.classes)
+        selected_class_dir = os.path.join(self.dataset, selected_class)
+        all_items = os.listdir(selected_class_dir)
+        images = [item for item in all_items if os.path.isfile(os.path.join(selected_class_dir, item))]
+
+        # 선택된 클래스에서 무작위로 이미지 선택
+        selected_image = random.choice(images)
+        image_path = os.path.join(selected_class_dir, selected_image)
+        label = self.classes.index(selected_class)
+
+        # 이미지 변환 적용
+        trans = transforms.Compose([
+            transforms.Resize((105, 105)),
+            transforms.ToTensor(),
+            transforms.Normalize(mean=[0.8444], std=[0.5329])
+        ])
+
+        image = Image.open(image_path).convert('L')
+        image = trans(image)
+
+        return image, torch.tensor(label, dtype=torch.int64)
+
+

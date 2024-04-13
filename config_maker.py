@@ -23,7 +23,7 @@ data_arg.add_argument('--valid_trials', type=int, default=5000,
                       help='# of validation 1-shot trials') #320
 data_arg.add_argument('--test_trials', type=int, default=5800,
                       help='# of test 1-shot trials') #400
-data_arg.add_argument('--way', type=int, default=4,
+data_arg.add_argument('--way', type=int, default=16,
                       help='Ways in the 1-shot trials')
 data_arg.add_argument('--num_train', type=int, default=45000,
                       help='# of images in train dataset')
@@ -63,7 +63,7 @@ misc_arg.add_argument('--best', type=str2bool, default=True,
                       help='Load best model or most recent for testing')
 misc_arg.add_argument('--seed', type=int, default=1,
                       help='Seed to ensure reproducibility')
-misc_arg.add_argument('--data_dir', type=str, default='/home/server3/jhpark/siamese-one-shot-pytorch-main/split_data_density/',
+misc_arg.add_argument('--data_dir', type=str, default='/home/server3/jhpark/siamese-one-shot-pytorch-main/split_data_density_separate',
                       help='Directory in which data is stored')
 misc_arg.add_argument('--logs_dir', type=str, default='./result/',
                       help='Directory in which logs wil be stored')

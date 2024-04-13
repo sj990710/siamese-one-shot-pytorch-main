@@ -63,37 +63,51 @@ import os
 #     plt.savefig(file_path)  # 지정된 경로에 이미지 저장
 #     plt.close(fig)  # 리소스 해제
 
-def visualize_prediction(x1, x2, y_pred, similarity_label, anchor_label, x2_label, index, save_dir):
-    """
-    Visualizes the prediction for a pair of images and saves it in the specified directory.
-    Depending on the prediction result, images are saved in 'same' or 'different' folders.
-    Both the anchor and the positive/negative images are labeled with their corresponding labels.
-    Additionally, similarity label is added to the image title, and y_pred value is displayed between the images.
-    """
-    fig, axs = plt.subplots(1, 3, figsize=(15, 5))  # axs 배열 확장
+# sample image 16, query image floating
+def adjust_image(image):
+    # 이미지 차원을 확인하고 적절히 조정
+    if image.dim() == 3:
+        return image.cpu().numpy()  # 이미지가 이미 적절한 차원이면 변환만 수행
+    elif image.dim() == 4:
+        # 이미지 배치인 경우 첫 번째 이미지만 사용
+        return image[0].cpu().numpy()
+    else:
+        raise ValueError(f"Unsupported image dimensions: {image.shape}")
 
-    # Anchor 이미지 및 라벨
-    axs[0].imshow(np.transpose(x1.cpu().numpy(), (1, 2, 0)))
-    axs[0].set_title(f'Anchor Image\nLabel: {anchor_label}')
-    axs[0].axis('off')
+def visualize_predictions(sample_images, sample_labels, query_image, query_label, y_preds, batch_index, save_dir):
+    fig, axs = plt.subplots(4, 5, figsize=(25, 20))  # 4x5 그리드로 변경, 충분한 크기 확보
 
-    # y_pred 값을 중앙에 표시
-    axs[1].text(0.5, 0.5, f'Prediction: {"Same" if y_pred == 0 else "Different"}\nSimilarity Score: {similarity_label}',
-                verticalalignment='center', horizontalalignment='center', fontsize=12, color='red')
-    axs[1].axis('off')
+    # 쿼리 이미지 처리 및 왼쪽 상단에 표시
+    query_image_np = adjust_image(query_image)
+    axs[0, 0].imshow(query_image_np.transpose(1, 2, 0))  # 왼쪽 상단에 쿼리 이미지 배치
+    axs[0, 0].set_title(f'Query Image - Label: {query_label}', fontsize=10)
+    axs[0, 0].axis('off')
 
-    # x2 이미지 및 라벨
-    axs[2].imshow(np.transpose(x2.cpu().numpy(), (1, 2, 0)))
-    image_title = 'Positive Image' if y_pred == 0 else 'Negative Image'
-    axs[2].set_title(f'{image_title}\nLabel: {x2_label}')
-    axs[2].axis('off')
+    # 나머지 첫 행의 첫 열을 비움
+    for i in range(1, 4):
+        axs[i, 0].axis('off')
 
-    # 결과 폴더 설정
-    result_folder = 'same' if y_pred == 0 else 'different'
-    save_path = os.path.join(save_dir, 'prediction', result_folder)
+    # 샘플 이미지들을 4x4 그리드에 표시
+    image_index = 0
+    for i in range(4):
+        for j in range(1, 5):
+            if image_index < len(sample_images):
+                sample_image_batch = sample_images[image_index]
+                label = sample_labels[image_index]
+                y_pred = y_preds[image_index]
+                sample_image_np = adjust_image(sample_image_batch)
+                axs[i, j].imshow(sample_image_np.transpose(1, 2, 0))
+                result = 'Match' if y_pred > 0.5 else 'Mismatch'
+                axs[i, j].set_title(f'Label: {label}\n{result} (Score: {y_pred:.2f})', fontsize=10)
+                axs[i, j].axis('off')
+                image_index += 1
+
+    # 결과 저장
+    save_path = os.path.join(save_dir, 'predictions')
     os.makedirs(save_path, exist_ok=True)
-
-    # 저장 경로 및 파일 이름 설정
-    file_path = os.path.join(save_path, f'predic_{index}.jpg')
+    file_path = os.path.join(save_path, f'batch_{batch_index}_comparison.jpg')
     plt.savefig(file_path)
     plt.close(fig)
+
+    print(f"Saved prediction comparison for batch {batch_index} at {file_path}")
+

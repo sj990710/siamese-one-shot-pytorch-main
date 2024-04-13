@@ -249,46 +249,79 @@ class Trainer(object):
 
         return ckpt['epoch'], ckpt['best_epoch'], ckpt['best_valid_acc'], ckpt['model_state'], ckpt['optim_state']
 
+    # def test(self):
+    #     config = config_maker.get_config()
+    #     # Load best model
+    #     model = SiameseNet()
+    #     _, _, _, model_state, _ = self.load_checkpoint(best=self.config.best)
+    #     model.load_state_dict(model_state)
+    #     if self.config.use_gpu:
+    #         model.cuda()
+    #
+    #     # Load sample_set and query_set
+    #     test_loader_1, test_loader_2 = get_test_loader(self.config.data_dir, self.config.way,
+    #                                                    self.config.test_trials,
+    #                                                    self.config.seed, self.config.num_workers,
+    #                                                    self.config.pin_memory)
+    #
+    #     with torch.no_grad():
+    #         for batch_index, (sample_images, _) in enumerate(test_loader_1):
+    #             query_image, query_label = next(iter(test_loader_2))  # 쿼리 이미지와 라벨을 가져옴
+    #
+    #             if self.config.use_gpu:
+    #                 sample_images = sample_images.cuda()
+    #                 query_image = query_image.cuda()
+    #
+    #             # 유사도 점수를 저장할 리스트
+    #             y_preds = []
+    #
+    #             for sample_image in sample_images:
+    #                 # 이미지 차원 확인 및 필요시 배치 차원 추가
+    #                 if sample_image.dim() == 3:
+    #                     sample_image = sample_image.unsqueeze(0)
+    #
+    #                 # 모델에 이미지 전달 및 결과 처리
+    #                 out = model(sample_image, query_image)
+    #                 y_pred = torch.sigmoid(out)
+    #
+    #                 # 배치 차원을 가정하고 있으므로, 각 요소에 대한 유사도를 리스트에 추가
+    #                 y_preds.extend(y_pred.squeeze().tolist())
+    #
+    #             # 현재 쿼리 이미지의 라벨과 유사도 점수 출력
+    #             print(f"Query image {batch_index + 1}, Label: {query_label.item()}: y_preds = {y_preds}")
+
     def test(self):
         config = config_maker.get_config()
-        # Load best model
         model = SiameseNet()
         _, _, _, model_state, _ = self.load_checkpoint(best=self.config.best)
         model.load_state_dict(model_state)
         if self.config.use_gpu:
             model.cuda()
 
-        test_loader = get_test_loader(self.config.data_dir, self.config.way, self.config.test_trials,
-                                      self.config.seed, self.config.num_workers, self.config.pin_memory)
+        test_loader_1, test_loader_2 = get_test_loader(self.config.data_dir, self.config.way,
+                                                       self.config.test_trials,
+                                                       self.config.seed, self.config.num_workers,
+                                                       self.config.pin_memory)
 
-        correct_sum = 0
-        num_test = test_loader.dataset.trials
-        print(f"[*] Test on {num_test} pairs.")
-
-        pbar = tqdm(enumerate(test_loader), total=num_test, desc="Test")
         with torch.no_grad():
-            for i, (x1, x2, similarity_labels, anchor_labels, x2_labels) in pbar:
+            for batch_index, (sample_images, sample_labels) in enumerate(test_loader_1):
+                query_image, query_label = next(iter(test_loader_2))
 
                 if self.config.use_gpu:
-                    x1, x2 = x1.to(self.device), x2.to(self.device)
+                    sample_images = sample_images.cuda()
+                    query_image = query_image.cuda()
 
-                # Compute log probabilities
-                out = model(x1, x2)
+                y_preds = []
+                for sample_image in sample_images:
+                    if sample_image.dim() == 3:
+                        sample_image = sample_image.unsqueeze(0)
 
-                y_pred = torch.sigmoid(out)
-                y_pred = torch.argmax(y_pred).item()
-                if y_pred == 0:
-                    correct_sum += 1
+                    out = model(sample_image, query_image)
+                    y_pred = torch.sigmoid(out)
 
-                # 이미 .item()을 사용하여 float으로 변환된 값을 받았으므로, 추가적인 .item() 호출은 필요 없음
-                similarity_label = similarity_labels[0].item()  # 첫 번째 요소의 레이블만 사용
-                anchor_label = anchor_labels[0].item()  # 첫 번째 요소의 레이블만 사용
-                x2_label = x2_labels[0].item()
+                    y_pred_mean = y_pred.mean().item()  # 평균 점수 사용
+                    y_preds.append(y_pred_mean)
 
-                # Call visualize_prediction with the current index i and anchor_label
-                visual.visualize_prediction(x1[0], x2[0], y_pred, similarity_label, x2_label, i, config.logs_dir)
-
-                pbar.set_postfix_str(f"accuracy: {correct_sum / num_test}")
-
-        test_acc = (100. * correct_sum) / num_test
-        print(f"Test Acc: {correct_sum}/{num_test} ({test_acc:.2f}%)")
+                print(f"Query image {batch_index + 1}, Label: {query_label.item()}: y_preds = {y_preds}")
+                visual.visualize_predictions(sample_images, sample_labels, query_image, query_label, y_preds,
+                                             batch_index, config.logs_dir)

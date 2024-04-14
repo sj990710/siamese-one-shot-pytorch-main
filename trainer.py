@@ -117,30 +117,31 @@ class Trainer(object):
             correct_sum = 0
             valid_pbar = tqdm(enumerate(valid_loader), total=num_valid, desc="Valid", position=1, leave=False)
             with torch.no_grad():
-                for i, (x1, x2, label, _, _) in valid_pbar:  # 언패킹 방식이 수정됨
-
+                for i, (x1, x2, label, _, _) in valid_pbar:
                     if self.config.use_gpu:
-                        x1, x2, label = x1.to(self.device), x2.to(self.device), label.to(self.device)  # label도 GPU로 이동
+                        x1, x2, label = x1.to(self.device), x2.to(self.device), label.to(self.device)
 
                     # 모델을 통해 logit을 계산
                     out = model(x1, x2)
 
                     # 손실 계산
-                    loss = criterion(out, label.unsqueeze(1))  # y 대신 label 사용
+                    loss = criterion(out, label.unsqueeze(1))
 
+                    # Sigmoid 함수를 적용하여 확률을 얻고, 0.5 이상인 경우를 1로 간주
                     y_pred = torch.sigmoid(out)
-                    y_pred = torch.argmax(y_pred)
-                    if y_pred == 0:
-                        correct_sum += 1
+                    predictions = (y_pred > 0.5).float()  # 예측 값
+
+                    # 예측값과 실제값이 같은 경우의 수를 세어 정확도 계산
+                    correct_sum += (predictions == label.unsqueeze(1)).sum().item()
 
                     # store batch statistics
                     valid_losses.update(loss.item(), x1.shape[0])
 
-                    # compute acc and log
-                    valid_acc = correct_sum / num_valid
-                    writer.add_scalar("Loss/Valid", valid_losses.val, epoch * len(valid_loader) + i)
-                    valid_pbar.set_postfix_str(f"accuracy: {valid_acc:0.3f}")
-            writer.add_scalar("Acc/Valid", valid_acc, epoch)
+                    # 전체 유효성 검사 데이터 세트에 대한 평균 정확도 계산
+                valid_acc = correct_sum / len(valid_loader.dataset)
+                writer.add_scalar("Loss/Valid", valid_losses.avg, epoch)
+                writer.add_scalar("Acc/Valid", valid_acc, epoch)
+                valid_pbar.set_postfix_str(f"accuracy: {valid_acc:.3f}")
 
             # check for improvement
             if valid_acc > best_valid_acc:

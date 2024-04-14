@@ -252,5 +252,3 @@ class OmniglotTest_query(Dataset):
         image = trans(image)
 
         return image, torch.tensor(label, dtype=torch.int64)
-
-

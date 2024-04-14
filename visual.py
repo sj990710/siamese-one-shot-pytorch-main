@@ -110,5 +110,3 @@ def visualize_predictions(sample_images, sample_labels, query_image, query_label
     plt.close(fig)
 
     print(f"Saved prediction comparison for batch {batch_index} at {file_path}")
-
-

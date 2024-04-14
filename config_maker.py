@@ -25,7 +25,7 @@ data_arg.add_argument('--test_trials', type=int, default=5800,
                       help='# of test 1-shot trials') #400
 data_arg.add_argument('--way', type=int, default=16,
                       help='Ways in the 1-shot trials')
-data_arg.add_argument('--num_train', type=int, default=45000,
+data_arg.add_argument('--num_train', type=int, default=40000,
                       help='# of images in train dataset')
 data_arg.add_argument('--batch_size', type=int, default=32,
                       help='# of images in each batch of data')
@@ -48,7 +48,7 @@ train_arg.add_argument('--lr', type=float, default=10e-4,
                        help='learning rate')
 train_arg.add_argument('--train_patience', type=int, default=20,
                        help='Number of epochs to wait before stopping train')
-train_arg.add_argument('--optimizer', type=str, default="SGD",
+train_arg.add_argument('--optimizer', type=str, default="Adam",
                        help='Select optimizer "Adam" or "Adam"')
 
 # other params

@@ -63,9 +63,9 @@ misc_arg.add_argument('--best', type=str2bool, default=True,
                       help='Load best model or most recent for testing')
 misc_arg.add_argument('--seed', type=int, default=1,
                       help='Seed to ensure reproducibility')
-misc_arg.add_argument('--data_dir', type=str, default='/home/server3/jhpark/siamese-one-shot-pytorch-main/split_data_density_separate',
+misc_arg.add_argument('--data_dir', type=str, default='/content/drive/MyDrive/lch',
                       help='Directory in which data is stored')
-misc_arg.add_argument('--logs_dir', type=str, default='./result/',
+misc_arg.add_argument('--logs_dir', type=str, default='/content/drive/MyDrive/lch_result/',
                       help='Directory in which logs wil be stored')
 misc_arg.add_argument('--resume', type=str2bool, default=False,
                       help='Whether to resume training from checkpoint')

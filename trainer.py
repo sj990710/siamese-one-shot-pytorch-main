@@ -327,7 +327,42 @@ class Trainer(object):
     #             print(f"Query image {batch_index + 1}, Label: {query_label.item()}: y_preds = {y_preds}")
     #             visual.visualize_predictions(sample_images, sample_labels, query_image, query_label, y_preds,
     #                                          batch_index, config.logs_dir)
-    def test(self):
+     def test(self):
+
+        # Load best model
+        model = SiameseNet()
+        _, _, _, model_state, _ = self.load_checkpoint(best=self.config.best)
+        model.load_state_dict(model_state)
+        if self.config.use_gpu:
+            model.cuda()
+
+        test_loader = get_test_loader(self.config.data_dir, self.config.way, self.config.test_trials,
+                                      self.config.seed, self.config.num_workers, self.config.pin_memory)
+
+        correct_sum = 0
+        num_test = test_loader.dataset.trials
+        print(f"[*] Test on {num_test} pairs.")
+
+        pbar = tqdm(enumerate(test_loader), total=num_test, desc="Test")
+        with torch.no_grad():
+            for i, (x1, x2, _) in pbar:
+
+                if self.config.use_gpu:
+                    x1, x2 = x1.to(self.device), x2.to(self.device)
+
+                # compute log probabilities
+                out = model(x1, x2)
+
+                y_pred = torch.sigmoid(out)
+                y_pred = torch.argmax(y_pred)
+                if y_pred == 0:
+                    correct_sum += 1
+
+                pbar.set_postfix_str(f"accuracy: {correct_sum / num_test}")
+
+        test_acc = (100. * correct_sum) / num_test
+        print(f"Test Acc: {correct_sum}/{num_test} ({test_acc:.2f}%)")
+    def visual(self):
         config = config_maker.get_config()
         model = SiameseNet()
         _, _, _, model_state, _ = self.load_checkpoint(best=self.config.best)
@@ -339,8 +374,6 @@ class Trainer(object):
                                                        self.config.test_trials,
                                                        self.config.seed, self.config.num_workers,
                                                        self.config.pin_memory)
-    
-        test_results = []  # 테스트 결과를 저장할 리스트
     
         with torch.no_grad():
             for batch_index, (sample_images, sample_labels) in enumerate(test_loader_1):
@@ -359,13 +392,6 @@ class Trainer(object):
                     y_pred = torch.sigmoid(out).squeeze()  # 각 샘플에 대한 유사도 계산
                     y_preds.extend(y_pred.tolist())  # 유사도 점수를 리스트로 저장
     
-                # 시각화를 위한 데이터 저장
-                test_results.append((sample_images, sample_labels, query_image, query_label, y_preds, batch_index))
-    
-        return test_results  # 테스트 결과 반환
-
-    def visualize(test_results, logs_dir):
-        for sample_images, sample_labels, query_image, query_label, y_preds, batch_index in test_results:
-            visual.visualize_predictions(sample_images, sample_labels, query_image, query_label, y_preds,
-                                         batch_index, logs_dir)
-
+                # 결과를 시각화하여 보여줍니다.
+                visual.visualize_predictions(sample_images, sample_labels, query_image, query_label, y_preds,
+                                      batch_index, config.logs_dir)

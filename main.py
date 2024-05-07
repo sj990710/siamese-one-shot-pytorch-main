@@ -48,8 +48,8 @@ def train(config=None, trainer=None):
 #     trainer.test()
 def test(config=None, trainer=None):
     if config is None or trainer is None:
-        config = get_config()
-        trainer = Trainer(config)
+          config = get_config()
+          trainer = Trainer(config)
 
     # 테스트 모델 실행 및 결과 반환
     print_status("Test Start")
@@ -57,8 +57,8 @@ def test(config=None, trainer=None):
     return test_results
 def visualize(conif=None, trainer=None):
     if config is None or trainer is None:
-    config = get_config()
-    trainer = Trainer(config)
+          config = get_config()
+          trainer = Trainer(config)
     print("Visualization Start")
     trainer.visualize()
 

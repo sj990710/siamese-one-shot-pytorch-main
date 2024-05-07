@@ -236,22 +236,67 @@ class Omniglotvalid(Dataset):
                                                                                       dtype=torch.int64), torch.tensor(
             image2_label, dtype=torch.int64)
 
-class OmniglotTest:
-    def __init__(self, dataset, trials, way, seed=0):
+# class OmniglotTest:
+#     def __init__(self, dataset, trials, way, seed=0):
+#         self.dataset = dataset
+#         self.trials = trials
+#         self.way = way
+#         self.seed = seed
+#         self.image1 = None
+#         self.mean = 0.8444
+#         self.std = 0.5329
+
+#     def __len__(self):
+#         return self.trials * self.way
+
+#     def __getitem__(self, index):
+#         rand = Random(self.seed + index)
+#         # get image pair from same class
+#         if index % self.way == 0:
+#             label = 1.0
+#             idx = rand.randint(0, len(self.dataset.classes) - 1)
+#             image_list = [x for x in self.dataset.imgs if x[1] == idx]
+#             self.image1 = rand.choice(image_list)
+#             image2 = rand.choice(image_list)
+#             while self.image1[0] == image2[0]:
+#                 image2 = rand.choice(image_list)
+
+#         # get image pair from different class
+#         else:
+#             label = 0.0
+#             image2 = random.choice(self.dataset.imgs)
+#             while self.image1[1] == image2[1]:
+#                 image2 = random.choice(self.dataset.imgs)
+
+#         trans = transforms.Compose([
+#             transforms.ToTensor(),
+#             transforms.Normalize(mean=self.mean, std=self.std)
+#         ])
+
+#         image1 = Image.open(self.image1[0]).convert('L')
+#         image2 = Image.open(image2[0]).convert('L')
+#         image1 = trans(image1)
+#         image2 = trans(image2)
+
+#         return image1, image2, label
+class OmniglotTest(Dataset):
+    def __init__(self, dataset, trials, way, seed=0, transform=None):
         self.dataset = dataset
         self.trials = trials
         self.way = way
         self.seed = seed
         self.image1 = None
-        self.mean = 0.8444
-        self.std = 0.5329
+        self.transform = transform or transforms.Compose([
+            transforms.ToTensor(),
+            transforms.Normalize(mean=[0.8444], std=[0.5329])
+        ])
 
     def __len__(self):
         return self.trials * self.way
 
     def __getitem__(self, index):
         rand = Random(self.seed + index)
-        # get image pair from same class
+        # 같은 클래스의 이미지 쌍을 선택
         if index % self.way == 0:
             label = 1.0
             idx = rand.randint(0, len(self.dataset.classes) - 1)
@@ -261,22 +306,19 @@ class OmniglotTest:
             while self.image1[0] == image2[0]:
                 image2 = rand.choice(image_list)
 
-        # get image pair from different class
+        # 다른 클래스의 이미지 쌍을 선택
         else:
             label = 0.0
             image2 = random.choice(self.dataset.imgs)
             while self.image1[1] == image2[1]:
                 image2 = random.choice(self.dataset.imgs)
 
-        trans = transforms.Compose([
-            transforms.ToTensor(),
-            transforms.Normalize(mean=self.mean, std=self.std)
-        ])
-
         image1 = Image.open(self.image1[0]).convert('L')
         image2 = Image.open(image2[0]).convert('L')
-        image1 = trans(image1)
-        image2 = trans(image2)
+        
+        if self.transform:
+            image1 = self.transform(image1)
+            image2 = self.transform(image2)
 
         return image1, image2, label
       

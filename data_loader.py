@@ -56,7 +56,12 @@ def get_train_validation_loader(data_dir, batch_size, num_train, augment, way, t
 #     return test_loader_1
 def get_test_loader(data_dir, way, trials, seed, num_workers, pin_memory):
     test_dir = os.path.join(data_dir, 'test')
-    test_dataset = dset.ImageFolder(test_dir)
+    test_transform = transforms.Compose([
+        transforms.Resize((105, 105)),
+        transforms.ToTensor(),
+        transforms.Normalize(mean=[0.8444], std=[0.5329])
+    ])
+    test_dataset = dset.ImageFolder(test_dir,transform=test_tranform)
     test_dataset = OmniglotTest(test_dataset, trials=trials, way=way, seed=seed)
     test_loader = DataLoader(test_dataset, batch_size=way, shuffle=False, num_workers=num_workers,
                              pin_memory=pin_memory)
@@ -66,10 +71,21 @@ def get_visual_loader(data_dir, way, trials, seed, num_workers, pin_memory):
     test_dir_1 = os.path.join(data_dir, 'test')
     test_dir_2 = os.path.join(data_dir, 'test_query')
 
-    test_dataset_1 = OmniglotTest_sample(test_dir_1, trials, way, seed)
+    # 이미지 변환 설정
+    visual_transform = transforms.Compose([
+        transforms.Resize((105, 105)),
+        transforms.ToTensor(),
+        transforms.Normalize(mean=[0.8444], std=[0.5329])
+    ])
+
+    # test_dataset_1에 이미지 변환 적용
+    test_dataset_1 = dset.ImageFolder(test_dir_1, transform=visual_transform)
+    test_dataset_1 = OmniglotTest_sample(test_dataset_1, trials, way, seed)
     test_loader_1 = DataLoader(test_dataset_1, batch_size=way, shuffle=True, num_workers=num_workers, pin_memory=pin_memory)
 
-    test_dataset_2 = OmniglotTest_query(test_dir_2, trials=1, way=1, seed=seed)  # trials와 way를 1로 설정하여 단일 이미지 로드
+    # test_dataset_2에 이미지 변환 적용
+    test_dataset_2 = dset.ImageFolder(test_dir_2, transform=visual_transform)
+    test_dataset_2 = OmniglotTest_query(test_dataset_2, trials=1, way=1, seed=seed)  # trials와 way를 1로 설정하여 단일 이미지 로드
     test_loader_2 = DataLoader(test_dataset_2, batch_size=1, shuffle=False, num_workers=num_workers,
                                pin_memory=pin_memory)
 

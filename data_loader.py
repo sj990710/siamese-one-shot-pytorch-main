@@ -61,7 +61,7 @@ def get_test_loader(data_dir, way, trials, seed, num_workers, pin_memory):
         transforms.ToTensor(),
         transforms.Normalize(mean=[0.8444], std=[0.5329])
     ])
-    test_dataset = dset.ImageFolder(test_dir,transform=test_tranform)
+    test_dataset = dset.ImageFolder(test_dir,transform=test_transform)
     test_dataset = OmniglotTest(test_dataset, trials=trials, way=way, seed=seed)
     test_loader = DataLoader(test_dataset, batch_size=way, shuffle=False, num_workers=num_workers,
                              pin_memory=pin_memory)

@@ -328,41 +328,41 @@ class Trainer(object):
     #             visual.visualize_predictions(sample_images, sample_labels, query_image, query_label, y_preds,
     #                                          batch_index, config.logs_dir)
     def test(self):
-    config = config_maker.get_config()
-    model = SiameseNet()
-    _, _, _, model_state, _ = self.load_checkpoint(best=self.config.best)
-    model.load_state_dict(model_state)
-    if self.config.use_gpu:
-        model.cuda()
-
-    test_loader_1, test_loader_2 = get_test_loader(self.config.data_dir, self.config.way,
-                                                   self.config.test_trials,
-                                                   self.config.seed, self.config.num_workers,
-                                                   self.config.pin_memory)
-
-    test_results = []  # 테스트 결과를 저장할 리스트
-
-    with torch.no_grad():
-        for batch_index, (sample_images, sample_labels) in enumerate(test_loader_1):
-            query_image, query_label = next(iter(test_loader_2))
-
-            if self.config.use_gpu:
-                sample_images = sample_images.cuda()
-                query_image = query_image.cuda()
-
-            y_preds = []
-            for sample_image in sample_images:
-                if sample_image.dim() == 3:
-                    sample_image = sample_image.unsqueeze(0)
-
-                out = model(sample_image, query_image)
-                y_pred = torch.sigmoid(out).squeeze()  # 각 샘플에 대한 유사도 계산
-                y_preds.extend(y_pred.tolist())  # 유사도 점수를 리스트로 저장
-
-            # 시각화를 위한 데이터 저장
-            test_results.append((sample_images, sample_labels, query_image, query_label, y_preds, batch_index))
-
-    return test_results  # 테스트 결과 반환
+        config = config_maker.get_config()
+        model = SiameseNet()
+        _, _, _, model_state, _ = self.load_checkpoint(best=self.config.best)
+        model.load_state_dict(model_state)
+        if self.config.use_gpu:
+            model.cuda()
+    
+        test_loader_1, test_loader_2 = get_test_loader(self.config.data_dir, self.config.way,
+                                                       self.config.test_trials,
+                                                       self.config.seed, self.config.num_workers,
+                                                       self.config.pin_memory)
+    
+        test_results = []  # 테스트 결과를 저장할 리스트
+    
+        with torch.no_grad():
+            for batch_index, (sample_images, sample_labels) in enumerate(test_loader_1):
+                query_image, query_label = next(iter(test_loader_2))
+    
+                if self.config.use_gpu:
+                    sample_images = sample_images.cuda()
+                    query_image = query_image.cuda()
+    
+                y_preds = []
+                for sample_image in sample_images:
+                    if sample_image.dim() == 3:
+                        sample_image = sample_image.unsqueeze(0)
+    
+                    out = model(sample_image, query_image)
+                    y_pred = torch.sigmoid(out).squeeze()  # 각 샘플에 대한 유사도 계산
+                    y_preds.extend(y_pred.tolist())  # 유사도 점수를 리스트로 저장
+    
+                # 시각화를 위한 데이터 저장
+                test_results.append((sample_images, sample_labels, query_image, query_label, y_preds, batch_index))
+    
+        return test_results  # 테스트 결과 반환
 
     def visualize(test_results, logs_dir):
         for sample_images, sample_labels, query_image, query_label, y_preds, batch_index in test_results:

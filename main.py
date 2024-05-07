@@ -37,17 +37,30 @@ def train(config=None, trainer=None):
     print_status("Train Start")
     trainer.train()
 
-# only test
+# # only test
+# def test(config=None, trainer=None):
+#     if config is None or trainer is None:
+#         config = get_config()
+#         trainer = Trainer(config)
+
+#     # test model
+#     print_status("Test Start")
+#     trainer.test()
 def test(config=None, trainer=None):
     if config is None or trainer is None:
         config = get_config()
         trainer = Trainer(config)
 
-    # test model
+    # 테스트 모델 실행 및 결과 반환
     print_status("Test Start")
-    trainer.test()
-
-
+    test_results = trainer.test()  # test 메소드가 결과를 반환하도록 가정
+    return test_results
+def visualize(conif=None, trainer=None):
+    if config is None or trainer is None:
+    config = get_config()
+    trainer = Trainer(config)
+    print("Visualization Start")
+    trainer.visualize()
 
 # running all process. download data, data set, data loader, train, validation, test
 def run():
@@ -81,4 +94,4 @@ def print_parameters():
 
 
 if __name__ == '__main__':
-    Fire({"run": run, "download-data": download_data, "train": train, "test": test, "param": print_parameters})
+    Fire({"run": run, "download-data": download_data, "train": train, "visualize": visualize, "test": test, "param": print_parameters})

@@ -55,12 +55,13 @@ def test(config=None, trainer=None):
     print_status("Test Start")
     test_results = trainer.test()  # test 메소드가 결과를 반환하도록 가정
     return test_results
-def visualize(conif=None, trainer=None):
+    
+def visual(conif=None, trainer=None):
     if config is None or trainer is None:
           config = get_config()
           trainer = Trainer(config)
     print("Visualization Start")
-    trainer.visualize()
+    trainer.visual()
 
 # running all process. download data, data set, data loader, train, validation, test
 def run():
@@ -94,4 +95,4 @@ def print_parameters():
 
 
 if __name__ == '__main__':
-    Fire({"run": run, "download-data": download_data, "train": train, "visualize": visualize, "test": test, "param": print_parameters})
+    Fire({"run": run, "download-data": download_data, "train": train, "visual": visual, "test": test, "param": print_parameters})

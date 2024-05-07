@@ -234,20 +234,20 @@ class Trainer(object):
 
     def load_checkpoint(self, best):
         print(f"[*] Loading model Num.{self.config.num_model}...", end="")
-
+        
         if best:
             model_path = os.path.join(self.config.logs_dir, './models/best_model.pt')
         else:
             model_path = sorted(glob(self.config.logs_dir + './models/model_ckpt_*.pt'), key=len)[-1]
-
+        
         ckpt = torch.load(model_path)
-
+        
         if best:
             print(
                 f"Loaded {os.path.basename(model_path)} checkpoint @ epoch {ckpt['epoch']} with best valid acc of {ckpt['best_valid_acc']:.3f}")
         else:
             print(f"Loaded {os.path.basename(model_path)} checkpoint @ epoch {ckpt['epoch']}")
-
+        
         return ckpt['epoch'], ckpt['best_epoch'], ckpt['best_valid_acc'], ckpt['model_state'], ckpt['optim_state']
 
     # def test(self):
@@ -327,8 +327,7 @@ class Trainer(object):
     #             print(f"Query image {batch_index + 1}, Label: {query_label.item()}: y_preds = {y_preds}")
     #             visual.visualize_predictions(sample_images, sample_labels, query_image, query_label, y_preds,
     #                                          batch_index, config.logs_dir)
-     def test(self):
-
+    def test(self):
         # Load best model
         model = SiameseNet()
         _, _, _, model_state, _ = self.load_checkpoint(best=self.config.best)

@@ -44,7 +44,7 @@ train_arg.add_argument('--epochs', type=int, default=250,
                        help='# of epochs to train for')
 train_arg.add_argument('--init_momentum', type=float, default=0.5,
                        help='Initial layer-wise momentum value')
-train_arg.add_argument('--lr', type=float, default=5e-4,
+train_arg.add_argument('--lr', type=float, default=1e-3,
                        help='learning rate')
 train_arg.add_argument('--train_patience', type=int, default=20,
                        help='Number of epochs to wait before stopping train')

@@ -93,15 +93,16 @@ def visualize_predictions(sample_images, sample_labels, query_image, query_label
         for j in range(1, 5):
             if image_index < len(sample_images):
                 sample_image_batch = sample_images[image_index]
-                label = sample_labels[image_index]
+                label = sample_labels[image_index]  # 수정: 특정 레이블 인덱싱
                 y_pred = y_preds[image_index]
                 sample_image_np = adjust_image(sample_image_batch)
                 axs[i, j].imshow(sample_image_np.transpose(1, 2, 0))
                 result = 'Match' if y_pred > 0.5 else 'Mismatch'
-                axs[i, j].set_title(f'Label: {label.item()}\n{result} (Score: {y_pred:.2f})', fontsize=10)
-
+                # label.item() 대신에 label을 직접 사용합니다. 만약 label이 여전히 텐서라면, 더 명확한 처리가 필요할 수 있습니다.
+                axs[i, j].set_title(f'Label: {label}\n{result} (Score: {y_pred:.2f})', fontsize=10)
                 axs[i, j].axis('off')
                 image_index += 1
+
 
     # 결과 저장
     save_path = os.path.join(save_dir, 'predictions')

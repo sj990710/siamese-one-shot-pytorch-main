@@ -77,34 +77,30 @@ def adjust_image(image):
 def visualize_predictions(sample_images, sample_labels, query_image, query_label, y_preds, batch_index, save_dir):
     fig, axs = plt.subplots(4, 5, figsize=(25, 20))  # 4x5 그리드로 변경, 충분한 크기 확보
 
-    # 쿼리 이미지 처리 및 왼쪽 상단에 표시
     query_image_np = adjust_image(query_image)
     axs[0, 0].imshow(query_image_np.transpose(1, 2, 0))  # 왼쪽 상단에 쿼리 이미지 배치
     axs[0, 0].set_title(f'Query Image - Label: {query_label}', fontsize=10)
     axs[0, 0].axis('off')
 
-    # 나머지 첫 행의 첫 열을 비움
     for i in range(1, 4):
         axs[i, 0].axis('off')
 
-    # 샘플 이미지들을 4x4 그리드에 표시
     image_index = 0
     for i in range(4):
         for j in range(1, 5):
             if image_index < len(sample_images):
                 sample_image_batch = sample_images[image_index]
-                label = sample_labels[image_index]  # 수정: 특정 레이블 인덱싱
+                label = sample_labels[image_index]  # 특정 레이블 인덱싱
                 y_pred = y_preds[image_index]
                 sample_image_np = adjust_image(sample_image_batch)
                 axs[i, j].imshow(sample_image_np.transpose(1, 2, 0))
                 result = 'Match' if y_pred > 0.5 else 'Mismatch'
-                # label.item() 대신에 label을 직접 사용합니다. 만약 label이 여전히 텐서라면, 더 명확한 처리가 필요할 수 있습니다.
+                # 레이블이 텐서로 저장되어 있다면 다음과 같이 .item()을 사용하여 숫자 값을 추출할 수 있습니다.
+                # label_value = label.item() if isinstance(label, torch.Tensor) else label
                 axs[i, j].set_title(f'Label: {label}\n{result} (Score: {y_pred:.2f})', fontsize=10)
                 axs[i, j].axis('off')
                 image_index += 1
 
-
-    # 결과 저장
     save_path = os.path.join(save_dir, 'predictions')
     os.makedirs(save_path, exist_ok=True)
     file_path = os.path.join(save_path, f'batch_{batch_index}_comparison.jpg')

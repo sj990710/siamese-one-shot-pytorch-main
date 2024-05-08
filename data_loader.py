@@ -330,7 +330,7 @@ class OmniglotTest_sample(Dataset):
         self.trials = trials
         self.way = way
         self.seed = seed
-        self.classes = [d for d in os.listdir(dataset) if os.path.isdir(os.path.join(dataset, d))]
+        self.classes = [d for d in os.listdir(dataset.root) if os.path.isdir(os.path.join(dataset.root, d))]
         self.selected_images = self.select_images()
 
     def select_images(self):

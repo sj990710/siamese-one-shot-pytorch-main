@@ -98,7 +98,8 @@ def visualize_predictions(sample_images, sample_labels, query_image, query_label
                 sample_image_np = adjust_image(sample_image_batch)
                 axs[i, j].imshow(sample_image_np.transpose(1, 2, 0))
                 result = 'Match' if y_pred > 0.5 else 'Mismatch'
-                axs[i, j].set_title(f'Label: {label}\n{result} (Score: {y_pred:.2f})', fontsize=10)
+                axs[i, j].set_title(f'Label: {label.item()}\n{result} (Score: {y_pred:.2f})', fontsize=10)
+
                 axs[i, j].axis('off')
                 image_index += 1
 

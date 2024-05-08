@@ -27,7 +27,7 @@ data_arg.add_argument('--way', type=int, default=16,
                       help='Ways in the 1-shot trials')
 data_arg.add_argument('--num_train', type=int, default=90000,
                       help='# of images in train dataset')
-data_arg.add_argument('--batch_size', type=int, default=16,
+data_arg.add_argument('--batch_size', type=int, default=32,
                       help='# of images in each batch of data')
 data_arg.add_argument('--num_workers', type=int, default=4,
                       help='# of subprocesses to use for data loading')

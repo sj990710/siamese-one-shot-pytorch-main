@@ -56,7 +56,7 @@ def test(config=None, trainer=None):
     test_results = trainer.test()  # test 메소드가 결과를 반환하도록 가정
     return test_results
     
-def visual(conif=None, trainer=None):
+def visual(config=None, trainer=None):
     if config is None or trainer is None:
           config = get_config()
           trainer = Trainer(config)

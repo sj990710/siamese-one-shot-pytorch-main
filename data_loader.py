@@ -340,7 +340,7 @@ class OmniglotTest_sample(Dataset):
             way_images = []
             for _ in range(self.way):
                 cls = random.choice(self.classes)
-                class_dir = os.path.join(self.dataset, cls)
+                class_dir = os.path.join(self.dataset.root, cls)
                 images = os.listdir(class_dir)
                 selected_image = random.choice(images)
                 way_images.append((os.path.join(class_dir, selected_image), cls))
@@ -432,7 +432,7 @@ class OmniglotTest_query(Dataset):
     def select_image(self):
         random.seed(self.seed)
         selected_class = random.choice(self.classes)
-        selected_class_dir = os.path.join(self.dataset, selected_class)
+        selected_class_dir = os.path.join(self.dataset.root, selected_class)
         all_items = os.listdir(selected_class_dir)
         images = [item for item in all_items if os.path.isfile(os.path.join(selected_class_dir, item))]
 

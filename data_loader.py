@@ -426,7 +426,7 @@ class OmniglotTest_query(Dataset):
         self.trials = trials
         self.way = way
         self.seed = seed
-        self.classes = [d for d in os.listdir(dataset) if os.path.isdir(os.path.join(dataset, d))]
+        self.classes = [d for d in os.listdir(dataset) if os.path.isdir(os.path.join(dataset.root, d))]
         self.image_path, self.selected_class_index = self.select_image()  # 단일 이미지 선택으로 변경
 
     def select_image(self):

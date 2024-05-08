@@ -281,15 +281,17 @@ class Omniglotvalid(Dataset):
 #         return image1, image2, label
 class OmniglotTest(Dataset):
     def __init__(self, dataset, trials, way, seed=0, transform=None):
-        self.dataset = dataset
-        self.trials = trials
-        self.way = way
-        self.seed = seed
-        self.image1 = None
-        self.transform = transform or transforms.Compose([
-            transforms.ToTensor(),
-            transforms.Normalize(mean=[0.8444], std=[0.5329])
-        ])
+    self.dataset = dataset
+    self.trials = trials
+    self.way = way
+    self.seed = seed
+    self.image1 = None
+    self.transform = transform or transforms.Compose([
+        transforms.Resize((105, 105)),  # 이미지 리사이즈 추가
+        transforms.ToTensor(),
+        transforms.Normalize(mean=[0.8444], std=[0.5329])
+    ])
+
 
     def __len__(self):
         return self.trials * self.way
@@ -307,11 +309,13 @@ class OmniglotTest(Dataset):
                 image2 = rand.choice(image_list)
 
         # 다른 클래스의 이미지 쌍을 선택
+        # 다른 클래스의 이미지 쌍을 선택
         else:
             label = 0.0
-            image2 = random.choice(self.dataset.imgs)
+            image2 = rand.choice(self.dataset.imgs)  # 수정됨
             while self.image1[1] == image2[1]:
-                image2 = random.choice(self.dataset.imgs)
+                image2 = rand.choice(self.dataset.imgs)  # 수정됨
+
 
         image1 = Image.open(self.image1[0]).convert('L')
         image2 = Image.open(image2[0]).convert('L')

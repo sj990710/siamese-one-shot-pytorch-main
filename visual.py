@@ -1,7 +1,7 @@
 import matplotlib.pyplot as plt
 import numpy as np
 import os
-
+import torch
 # def visualize_prediction(x1, x2, y_pred, anchor_label, index, save_dir):
 #     """
 #     Visualizes the prediction for a pair of images and saves it in the specified directory.

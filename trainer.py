@@ -8,7 +8,7 @@ from tqdm import tqdm
 
 import config_maker
 import visual
-from data_loader import get_train_validation_loader, get_test_loader
+from data_loader import get_train_validation_loader, get_test_loader, get_visual_loader
 from model import SiameseNet
 from utils import AverageMeter
 from scheduler import OneCyclePolicy

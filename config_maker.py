@@ -27,7 +27,7 @@ data_arg.add_argument('--way', type=int, default=16,
                       help='Ways in the 1-shot trials')
 data_arg.add_argument('--num_train', type=int, default=90000,
                       help='# of images in train dataset')
-data_arg.add_argument('--batch_size', type=int, default=32,
+data_arg.add_argument('--batch_size', type=int, default=16,
                       help='# of images in each batch of data')
 data_arg.add_argument('--num_workers', type=int, default=4,
                       help='# of subprocesses to use for data loading')
@@ -40,11 +40,11 @@ data_arg.add_argument('--augment', type=str2bool, default=True,
 
 # training params
 train_arg = parser.add_argument_group('Training Params')
-train_arg.add_argument('--epochs', type=int, default=200,
+train_arg.add_argument('--epochs', type=int, default=250,
                        help='# of epochs to train for')
 train_arg.add_argument('--init_momentum', type=float, default=0.5,
                        help='Initial layer-wise momentum value')
-train_arg.add_argument('--lr', type=float, default=10e-4,
+train_arg.add_argument('--lr', type=float, default=5e-4,
                        help='learning rate')
 train_arg.add_argument('--train_patience', type=int, default=20,
                        help='Number of epochs to wait before stopping train')

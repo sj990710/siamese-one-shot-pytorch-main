@@ -369,7 +369,7 @@ class Trainer(object):
         if self.config.use_gpu:
             model.cuda()
     
-        test_loader_1, test_loader_2 = get_test_loader(self.config.data_dir, self.config.way,
+        test_loader_1, test_loader_2 = get_visual_loader(self.config.data_dir, self.config.way,
                                                        self.config.test_trials,
                                                        self.config.seed, self.config.num_workers,
                                                        self.config.pin_memory)

@@ -21,7 +21,7 @@ parser = argparse.ArgumentParser(description='Siamese Network')
 data_arg = parser.add_argument_group('Data Params')
 data_arg.add_argument('--valid_trials', type=int, default=256,
                       help='# of validation 1-shot trials') #320
-data_arg.add_argument('--test_trials', type=int, default=380,
+data_arg.add_argument('--test_trials', type=int, default=920,
                       help='# of test 1-shot trials') #400
 data_arg.add_argument('--way', type=int, default=16,
                       help='Ways in the 1-shot trials')

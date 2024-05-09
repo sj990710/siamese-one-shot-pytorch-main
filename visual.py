@@ -97,7 +97,7 @@ def visualize_predictions(sample_images, sample_labels, query_image, query_label
                 result = 'Match' if y_pred > 0.5 else 'Mismatch'
                 # 레이블이 텐서로 저장되어 있다면 다음과 같이 .item()을 사용하여 숫자 값을 추출할 수 있습니다.
                 label_value = label.item() if isinstance(label, torch.Tensor) else label
-                axs[i, j].set_title(f'Label: {label}\n{result} (Score: {y_pred:.2f})', fontsize=10)
+                axs[i, j].set_title(f'Label: {label_value}\n{result} (Score: {y_pred:.2f})', fontsize=10)
                 axs[i, j].axis('off')
                 image_index += 1
 

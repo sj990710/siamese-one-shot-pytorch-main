@@ -86,19 +86,19 @@ def visualize_predictions(sample_images, sample_labels, query_image, query_label
         axs[i, 0].axis('off')
 
     image_index = 0
-for i in range(4):
-    for j in range(1, 5):
-        if image_index < len(sample_images):
-            sample_image_batch = sample_images[image_index]
-            # 여기서 라벨을 숫자로 변환
-            label_value = sample_labels[image_index].item()  # 수정된 부분
-            y_pred = y_preds[image_index]
-            sample_image_np = adjust_image(sample_image_batch)
-            axs[i, j].imshow(sample_image_np.transpose(1, 2, 0))
-            result = 'Match' if y_pred > 0.5 else 'Mismatch'
-            axs[i, j].set_title(f'Label: {label_value}\n{result} (Score: {y_pred:.2f})', fontsize=10)
-            axs[i, j].axis('off')
-            image_index += 1
+    for i in range(4):
+        for j in range(1, 5):
+            if image_index < len(sample_images):
+                sample_image_batch = sample_images[image_index]
+                # 여기서 라벨을 숫자로 변환
+                label_value = sample_labels[image_index].item()  # 수정된 부분
+                y_pred = y_preds[image_index]
+                sample_image_np = adjust_image(sample_image_batch)
+                axs[i, j].imshow(sample_image_np.transpose(1, 2, 0))
+                result = 'Match' if y_pred > 0.5 else 'Mismatch'
+                axs[i, j].set_title(f'Label: {label_value}\n{result} (Score: {y_pred:.2f})', fontsize=10)
+                axs[i, j].axis('off')
+                image_index += 1
 
 
     save_path = os.path.join(save_dir, 'predictions')
